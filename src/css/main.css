@@ -14,14 +14,22 @@ body {
   width: 200px;
   height: 30px;
   border-radius: 4px;
-  background-color: ;
+  background-color: lightyellow;
   color: darkslategrey;
+  margin-right: 8px;
 }
-.btn-submit {
+.btn-submit,
+.load-more {
   height: 34px;
-  width: 80px;
+  width: 100px;
   background-color: #a47053;
   border-radius: 6px;
   font-weight: 700;
   color: white;
+}
+.load-more {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 15px;
 }
