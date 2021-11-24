@@ -2,11 +2,9 @@ body {
   background-color: #efca66;
 }
 .content-wrapper {
-  width: 1200px;
+  width: 1400px;
   margin-left: auto;
   margin-right: auto;
-  display: flex;
-  justify-content: center;
   padding-top: 50px;
 }
 
@@ -17,6 +15,7 @@ body {
   background-color: lightyellow;
   color: darkslategrey;
   margin-right: 8px;
+  margin-bottom: 50px;
 }
 .btn-submit,
 .load-more {
@@ -32,4 +31,7 @@ body {
   margin-left: auto;
   margin-right: auto;
   margin-top: 15px;
+}
+.is-hidden {
+  display: none;
 }
