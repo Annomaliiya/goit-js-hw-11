@@ -16,6 +16,11 @@ const btnSearch = document.querySelector('.btn-submit');
 const loadMoreBtn = document.querySelector('.load-more');
 ///////////////////////////////
 
+const gallery = new SimpleLightbox('.gallery a', {
+    scaleImageRatio: true,
+    captionDelay: 250
+});
+
 // вспомагательные функции для поиска
 const clearGallery = () => {
     galleryEl.innerHTML = '';
@@ -24,27 +29,13 @@ const clearGallery = () => {
 const showLoadMoreBtn = () => {
     loadMoreBtn.classList.remove('is-hidden');
 };
-const increasePageInLocalStorage = () => {
-    const pageIterattor = Number(localStorage.getItem('page')) + 1;
-    localStorage.setItem('page', JSON.stringify(pageIterattor));
-    if (totalHits > page * per_page) {
-        Notify.info("We're sorry, but you've reached the end of search results.")
-    }
-    // galleryCardsTemplate();
-    //подключаем simpleLightBox
 
-    const gallery = new SimpleLightbox('.gallery a', {
-        scaleImageRatio: true,
-        captionDelay: 250
-    });
-};
-// 
 
 // ПОИСК ИЗОБРАЖЕНИЙ ЧЕРЕЗ ФОРМУ
 const onFormSubmit = event => {
     event.preventDefault();
 
-    localStorage.setItem('page', '0');
+    localStorage.setItem('page', '1');
 
     const query = document.querySelector('.input-box').value.trim();
     localStorage.setItem('query', query);
@@ -63,12 +54,10 @@ const onFormSubmit = event => {
             } else {
                 Notify.success(`'Hooray! We found ${totalHits} images.`);
                 galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits));
+                gallery.refresh();
                 showLoadMoreBtn();
                 //подключаем simpleLightBox
-                const gallery = new SimpleLightbox('.gallery a', {
-                    scaleImageRatio: true,
-                    captionDelay: 250
-                });
+
             }
         })
         .catch(err => {
@@ -87,13 +76,17 @@ const onLoadMoreBtnClick = () => {
             const { hits, totalHits } = data;
             // console.log(data.totalHits)
             galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits, totalHits));
-            increasePageInLocalStorage();
-            const totalPages = Math.ceil(data.totalHits / 40);
-            console.log(totalPages)
-            if (page >= totalPages) {
+            gallery.refresh();
+            // increasePageInLocalStorage();
+            let pageIterattor = Number(localStorage.getItem('page'));
+
+            if (totalHits <= pageIterattor * 40) {
                 loadMoreBtn.classList.add('is-hidden');
-                Notify.failure("We're sorry, but you've reached the end of search results.");
+                Notify.info("We're sorry, but you've reached the end of search results.")
             }
+            pageIterattor += 1;
+            localStorage.setItem('page', JSON.stringify(pageIterattor));
+
 
         })
         .catch(err => {
@@ -104,9 +97,3 @@ const onLoadMoreBtnClick = () => {
 
 searchFormEl.addEventListener('submit', onFormSubmit);
 loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
-
-//подключаем simplylightbox
-
-// const lightbox = new SimpleLightbox('.gallery a', {
-//     captionDelay: 250
-// });
