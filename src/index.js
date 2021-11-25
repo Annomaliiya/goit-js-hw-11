@@ -3,7 +3,7 @@
 //импорты
 import './css/main.css';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-// import SimpleLightbox from "simplelightbox";
+import SimpleLightbox from "simplelightbox";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { fetchImages } from './js/pixabay-api';
 import galleryCardsTemplate from './templates/gallery-card.hbs';
@@ -27,6 +27,16 @@ const showLoadMoreBtn = () => {
 const increasePageInLocalStorage = () => {
     const pageIterattor = Number(localStorage.getItem('page')) + 1;
     localStorage.setItem('page', JSON.stringify(pageIterattor));
+    if (totalHits > page * per_page) {
+        Notify.info("We're sorry, but you've reached the end of search results.")
+    }
+    // galleryCardsTemplate();
+    //подключаем simpleLightBox
+
+    const gallery = new SimpleLightbox('.gallery a', {
+        scaleImageRatio: true,
+        captionDelay: 250
+    });
 };
 // 
 
@@ -44,13 +54,22 @@ const onFormSubmit = event => {
         .then(({ data }) => {
             console.log(data);
             const { hits, totalHits } = data;
-            console.log(hits)
+            const imagesArr = data.hits;
 
-            galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits, totalHits));
-            const lightbox = new SimpleLightbox('.gallery a', {
-                captionDelay: 250
-            });
-            showLoadMoreBtn();
+            if (imagesArr.length === 0) {
+                clearGallery();
+                return Notify.failure(
+                    'Sorry, there are no images matching your search query. Please try again.')
+            } else {
+                Notify.success(`'Hooray! We found ${totalHits} images.`);
+                galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits));
+                showLoadMoreBtn();
+                //подключаем simpleLightBox
+                const gallery = new SimpleLightbox('.gallery a', {
+                    scaleImageRatio: true,
+                    captionDelay: 250
+                });
+            }
         })
         .catch(err => {
             console.log(err);
@@ -60,49 +79,34 @@ const onFormSubmit = event => {
 
 
 const onLoadMoreBtnClick = () => {
+
     const query = localStorage.getItem('query');
 
-    fetchImages(query,)
+    fetchImages(query)
         .then(({ data }) => {
             const { hits, totalHits } = data;
+            // console.log(data.totalHits)
             galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits, totalHits));
             increasePageInLocalStorage();
+            const totalPages = Math.ceil(data.totalHits / 40);
+            console.log(totalPages)
+            if (page >= totalPages) {
+                loadMoreBtn.classList.add('is-hidden');
+                Notify.failure("We're sorry, but you've reached the end of search results.");
+            }
+
         })
         .catch(err => {
             console.log(err);
         });
-};
-
-
+}
 // вешаем слушателей событий
 
 searchFormEl.addEventListener('submit', onFormSubmit);
 loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
 
-// подключаем simplylightbox
+//подключаем simplylightbox
 
 // const lightbox = new SimpleLightbox('.gallery a', {
 //     captionDelay: 250
 // });
-
-
-// let mar = imgCardTmp(hits);
-// function imgCardTmp(hits) {
-//     return images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-//         return `<div class="photo-card">
-//         <a href="${largeImageURL}"
-//                 <img src="${webformatURL}"
-//                      lt="${tags}"
-//                      data-src="${largeImageURL}"
-//                      width="270"
-//                      height="auto"
-//                      loading="lazy" />
-//                 <div class="info">
-//                   <p class="info-item"><b>Likes:</b>${likes}</p>
-//                   <p class="info-item"><b>Views:</b>${views}</p>
-//                   <p class="info-item"><b>Comments:</b>${comments}</p>
-//                   <p class="info-item"><b>Downloads:</b>${downloads}</p>
-//                 </div>
-//               </div>`
-//     }).join("")
-// }
