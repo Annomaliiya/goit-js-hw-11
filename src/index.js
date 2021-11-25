@@ -16,6 +16,8 @@ const btnSearch = document.querySelector('.btn-submit');
 const loadMoreBtn = document.querySelector('.load-more');
 ///////////////////////////////
 
+///////simplelightbox
+
 const gallery = new SimpleLightbox('.gallery a', {
     scaleImageRatio: true,
     captionDelay: 250
@@ -74,10 +76,8 @@ const onLoadMoreBtnClick = () => {
     fetchImages(query)
         .then(({ data }) => {
             const { hits, totalHits } = data;
-            // console.log(data.totalHits)
             galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits, totalHits));
-            gallery.refresh();
-            // increasePageInLocalStorage();
+
             let pageIterattor = Number(localStorage.getItem('page'));
 
             if (totalHits <= pageIterattor * 40) {
@@ -86,7 +86,7 @@ const onLoadMoreBtnClick = () => {
             }
             pageIterattor += 1;
             localStorage.setItem('page', JSON.stringify(pageIterattor));
-
+            gallery.refresh();
 
         })
         .catch(err => {
