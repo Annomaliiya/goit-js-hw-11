@@ -12,7 +12,6 @@ import galleryCardsTemplate from './templates/gallery-card.hbs';
 // вытаскиваем елементы из html
 const searchFormEl = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
-const btnSearch = document.querySelector('.btn-submit');
 const loadMoreBtn = document.querySelector('.load-more');
 ///////////////////////////////
 
@@ -55,6 +54,7 @@ const onFormSubmit = event => {
                     'Sorry, there are no images matching your search query. Please try again.')
             } else {
                 Notify.success(`'Hooray! We found ${totalHits} images.`);
+                window.addEventListener('scroll', pageOnScroll)
                 galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate(hits));
                 gallery.refresh();
                 showLoadMoreBtn();
@@ -97,3 +97,17 @@ const onLoadMoreBtnClick = () => {
 
 searchFormEl.addEventListener('submit', onFormSubmit);
 loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
+
+//бесконечный скролл
+const pageOnScroll = event => {
+    const body = document.body;
+    const contentHeight = body.offsetHeight;
+    const yOffSet = window.pageYOffset;
+    const windowHeight = window.innerHeight;
+    const y = Math.ceil(yOffSet + windowHeight);
+
+    if (y >= contentHeight) {
+        onLoadMoreBtnClick();
+    }
+
+}
